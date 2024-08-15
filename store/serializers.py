@@ -1,6 +1,7 @@
 from .models import Customer, Product, Order, OrderDetail,Order, Cart, CartItem
 from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
+from django.db import transaction
 
 class ProductSerializer(ModelSerializer):
     class Meta:
@@ -98,6 +99,10 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'customer', 'placed_at', 'order_status', 'items']
 
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['order_status']
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
 
@@ -125,14 +130,12 @@ class CreateOrderSerializer(serializers.Serializer):
                 OrderDetail(
                     order= order, 
                     product=item.product, 
-                    unit_price=item.product.unit_price, 
+                    unit_price=item.product.price, 
                     quantity=item.quantity
                 ) for item in cart_items
             ]
             OrderDetail.objects.bulk_create(order_items)
             
             Cart.objects.filter(pk=cart_id).delete()
-
-            order_created.send_robust(self.__class__, order=order)
             
             return order

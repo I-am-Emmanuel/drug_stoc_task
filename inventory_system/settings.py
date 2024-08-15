@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djoser',
+    'django_filters',
     'rest_framework',
     'store',
     'core'
@@ -79,14 +80,22 @@ WSGI_APPLICATION = 'inventory_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'drugstore',
+        'HOST': 'localhost',
+        'USER': 'root',
+        'PASSWORD': '@kinsol@66990242'
     }
 }
-
-
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
