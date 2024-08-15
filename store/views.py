@@ -27,21 +27,8 @@ class ProductViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'request': self.request}
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.request.user.is_staff:
-            # If the user is an admin, apply the filter set
-            filterset = self.filterset_class(self.request.GET, queryset=queryset)
-            if filterset.is_valid():
-                return filterset.qs
-            else:
-                return queryset
-        else:
-            # Non-admin users see the full list without any filtering applied
-            return queryset
-
     def destroy(self, request, *args, **kwargs):
-        if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
+        if OrderDetail.objects.filter(product_id=kwargs['pk']).count() > 0:
             return Response({'error': 'Products cannot be deleted because it is associated with an order item'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)    
 
