@@ -20,6 +20,6 @@ carts_router.register('items', views.CartItemViewSet, basename='cart-items-detai
 urlpatterns = [    
     # path('', include(router.urls + products_router.urls)),
     path('', include(router.urls + products_router.urls + carts_router.urls)),
-    path('sales-report/', views.SalesReportView.as_view(), name='sales-report')
-  
+    path('sales-report/', views.SalesReportView.as_view(), name='sales-report'),
+    path('lesser-product-report/', views.ProductQuantityListView.as_view(), name='sales-report')
 ]

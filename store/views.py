@@ -11,7 +11,7 @@ from .serializers import ProductSerializer, CustomerSerializer, UpdateCartItemSe
 from .models import Product, OrderDetail, Cart, CartItem, Customer, Order
 from .permission import IsAdminOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
-from .filter import ProductQuantityFilter
+# from .filter import ProductQuantityFilter
 from rest_framework.views import APIView
 from django.utils import timezone
 
@@ -21,8 +21,8 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ProductQuantityFilter
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = ProductQuantityFilter
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -39,7 +39,7 @@ class CustomerViewSet(ModelViewSet):
 
     @action(detail=False, methods= ['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        customer = Customer.objects.get(user_id=request.user.id)
+        customer, created = Customer.objects.get_or_create(user_id=request.user.id)
         if request.method == 'GET':
 
         # request.user # This wil be sent to Anonymous User Class
@@ -94,7 +94,6 @@ class OrderViewSet(ModelViewSet):
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
-
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateOrderSerializer
@@ -107,10 +106,12 @@ class OrderViewSet(ModelViewSet):
 
         if user.is_staff:
             return Order.objects.all()
-
-        customer_id = Customer.objects.only(
-            'id').get(user_id=user)
-        return Order.objects.filter(customer_id=customer_id)
+        try:
+            customer_id = Customer.objects.only(
+                'id').get(user_id=user)
+            return Order.objects.filter(customer_id=customer_id)
+        except Customer.DoesNotExist:
+            return Order.objects.none()
 
 
 
@@ -148,9 +149,11 @@ class SalesReportView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-# class ProductQuantityListView(APIView):
-#     def get(self, request):
-#         quantity_lt = request.query_params.get('quantity_lt', 10)  
-#         products = Product.objects.filter(quantity__lt=quantity_lt)
-#         serializer = ProductSerializer(products, many=True)
-#         return Response(serializer.data)
+class ProductQuantityListView(APIView):
+    permission_classes = [IsAdminUser]
+    def get(self, request):
+        quantity_lt = int(request.query_params.get('quantity_lt', 10))  
+        products = Product.objects.filter(quantity__lt=quantity_lt)
+        serializer = ProductSerializer(products, many=True)
+        data = ({f'Total number of product less than {quantity_lt} ': products.count(), "product": serializer.data})
+        return Response(data, status=status.HTTP_200_OK)

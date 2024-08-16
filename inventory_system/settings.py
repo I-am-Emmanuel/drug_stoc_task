@@ -87,6 +87,15 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'drugstore',
+#         'HOST': 'localhost',
+#         'USER': 'root',
+#         'PASSWORD': '@kinsol@66990242'
+#     }
+# }
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
@@ -106,7 +115,7 @@ DJOSER = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=50),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(minutes=60)
 }
 
