@@ -87,15 +87,7 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'drugstore',
-#         'HOST': 'localhost',
-#         'USER': 'root',
-#         'PASSWORD': '@kinsol@66990242'
-#     }
-# }
+
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
