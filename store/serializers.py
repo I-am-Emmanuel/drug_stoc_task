@@ -139,3 +139,9 @@ class CreateOrderSerializer(serializers.Serializer):
             Cart.objects.filter(pk=cart_id).delete()
             
             return order
+
+class ProductPurchaseSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    product__title = serializers.CharField(max_length=255)
+    product__price = serializers.DecimalField(max_digits=6, decimal_places=2, min_value=0)
+    total_purchased = serializers.IntegerField()

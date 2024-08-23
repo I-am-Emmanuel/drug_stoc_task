@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, UpdateModelMixin
 from rest_framework import status
 from rest_framework.response import Response
-from .serializers import ProductSerializer, CustomerSerializer, UpdateCartItemSerializer, CartSerializer, CartItemSerializer, AddCartItemSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer
+from .serializers import ProductSerializer, CustomerSerializer, UpdateCartItemSerializer, CartSerializer, CartItemSerializer, AddCartItemSerializer, OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer, OrderItemSerializer, ProductPurchaseSerializer
 from .models import Product, OrderDetail, Cart, CartItem, Customer, Order
 from .permission import IsAdminOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
@@ -157,3 +157,37 @@ class ProductQuantityListView(APIView):
         serializer = ProductSerializer(products, many=True)
         data = ({f'Total number of product less than {quantity_lt} ': products.count(), "product": serializer.data})
         return Response(data, status=status.HTTP_200_OK)
+
+class CustomerPurchasedHistory(ModelViewSet):
+    http_method_names = ['get']
+    serializer_class = ProductPurchaseSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        user = self.request.user.id
+        try:
+            customer_id = Customer.objects.only('id').get(user_id=user).id
+           
+            customer_most_purchased = OrderDetail.objects.filter(
+                order__customer_id=customer_id, 
+            ).values('product__id', 'product__title', 'product__price').annotate(
+                total_purchased=Count('product')
+            ).order_by('-total_purchased')
+
+            return customer_most_purchased
+
+        except Customer.DoesNotExist:
+            return OrderDetail.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+            
+
+
+
+
+        # return Response()
+
+        
